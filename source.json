@@ -1,27 +1,26 @@
 {
-    "name":"Example Listing",
-    "id":"com.vrchat.example-listing",
-    "url":"https://vrchat-community.github.io/template-package-listing/index.json",
+    "name":"Ram.Type-0 VPM Repository",
+    "id":"com.ramtype0.vpm-repository",
+    "url":"https://ramtype0.github.io/VpmRepository/index.json",
     "author":{
-        "email":"developer@vrchat.com",
-        "name":"VRChat",
-        "url":"https://hello.vrchat.com"
+        "name":"Ram.Type-0",
+        "url":"https://github.com/RamType0"
     },
-    "description":"Example listing of VRChat packages",
+    "description":"VRChat packages from Ram.Type-0",
     "infoLink":{
-        "url":"http://github.com/vrchat-community/template-package-listing",
+        "url":"http://github.com/RamType0/VpmRepository",
         "text":"View on GitHub"
     },
     "bannerUrl":"banner.png",
     "githubRepos":[
-        "vrchat-community/clientsim"
+        "RamType0/Meshia.MeshSimplification"
     ],
     "packages":[
         {
-            "name":"com.vrchat.udonsharp",
+            "name":"com.ramtype0.meshia.mesh-simplification",
             "releases":[
-                "https://github.com/vrchat-community/UdonSharp/releases/download/1.1.7/com.vrchat.UdonSharp.zip",
-                "https://github.com/vrchat-community/UdonSharp/releases/download/1.1.6/com.vrchat.UdonSharp-1.1.6.zip"
+                "https://github.com/RamType0/Meshia.MeshSimplification/releases/download/1.0.1/com.ramtype0.meshia.mesh-simplification-1.0.0.zip",
+                "https://github.com/RamType0/Meshia.MeshSimplification/releases/download/1.0.1/com.ramtype0.meshia.mesh-simplification-1.0.1.zip"
             ]
         }
     ]
