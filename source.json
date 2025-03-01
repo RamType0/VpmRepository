@@ -14,14 +14,5 @@
     "bannerUrl":"banner.png",
     "githubRepos":[
         "RamType0/Meshia.MeshSimplification"
-    ],
-    "packages":[
-        {
-            "name":"com.ramtype0.meshia.mesh-simplification",
-            "releases":[
-                "https://github.com/RamType0/Meshia.MeshSimplification/releases/download/1.0.1/com.ramtype0.meshia.mesh-simplification-1.0.0.zip",
-                "https://github.com/RamType0/Meshia.MeshSimplification/releases/download/1.0.1/com.ramtype0.meshia.mesh-simplification-1.0.1.zip"
-            ]
-        }
     ]
 }
