@@ -107,6 +107,10 @@
             "Release"
           ]
         },
+        "Output": {
+          "type": "string",
+          "description": "Output directory"
+        },
         "Solution": {
           "type": "string",
           "description": "Path to a solution file that is automatically loaded"

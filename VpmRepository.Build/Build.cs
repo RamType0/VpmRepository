@@ -27,6 +27,13 @@ using System.IO;
 using Nuke.Common.Utilities;
 using System.Text.Json.Serialization;
 using System.Net.Http.Json;
+[GitHubActions(
+        "build-repository",
+        GitHubActionsImage.UbuntuLatest,
+        On = new[] { GitHubActionsTrigger.WorkflowDispatch, GitHubActionsTrigger.Push },
+        EnableGitHubToken = true,
+        AutoGenerate = false,
+        InvokedTargets = new[] { nameof(Publish) })]
 class Build : NukeBuild
 {
 
@@ -78,7 +85,7 @@ class Build : NukeBuild
 
     const string RepositoryManifestFileName = "index.json";
 
-    VpmRepositorySettings Settings { get; } = new()
+    static VpmRepositorySettings Settings { get; } = new()
     {
         Id = "com.ramtype0.vpm-repository",
         Name = "Ram.Type-0 VPM Repository",
