@@ -1,10 +1,9 @@
-name: Build Repo Listing
+name: Build Repository
 
 on: 
   workflow_dispatch:
   push:
     branches: main
-    paths: source.json
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -18,8 +17,7 @@ concurrency:
   cancel-in-progress: true
   
 env:
-  listPublishDirectory: Website
-  pathToCi: ci
+  publishDirectory: publish
 
 jobs:
   
@@ -32,22 +30,17 @@ jobs:
     steps:
       
       - uses: actions/checkout@v4 # check out this repo
-      - uses: actions/checkout@v4 # check out automation repo
-        with:
-          repository: vrchat-community/package-list-action
-          path: ${{env.pathToCi}}
-          clean: false # otherwise the local repo will no longer be checked out
-          
+
       - name: Restore Cache
         uses: actions/cache@v4
         with:
           path: |
-            ${{env.pathToCi}}/.nuke/temp
+            .nuke/temp
             ~/.nuget/packages
           key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj') }}
           
-      - name: Build Package Version Listing
-        run: ${{env.pathToCi}}/build.cmd BuildMultiPackageListing --root ${{env.pathToCi}} --list-publish-directory $GITHUB_WORKSPACE/${{env.listPublishDirectory}}
+      - name: Publish Pages
+        run: ./build.cmd Publish --output $GITHUB_WORKSPACE/${{env.publishDirectory}}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
  
@@ -57,7 +50,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ${{env.listPublishDirectory}}
+          path: ${{env.publishDirectory}}
           
       - name: Deploy to GitHub Pages
         id: deployment

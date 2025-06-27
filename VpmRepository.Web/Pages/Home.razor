@@ -1,0 +1,129 @@
+﻿@page "/"
+@using System.Diagnostics
+@inject HttpClient HttpClient
+
+
+@if (!vpmRepositoryManifestTask.IsCompleted)
+{
+    <MudSkeleton Height="800px" Width="100%" SkeletonType="SkeletonType.Rectangle" />
+    return;
+}
+
+@{
+    var vpmRepositoryManifest = vpmRepositoryManifestTask.Result;
+
+    if(vpmRepositoryManifest is null)
+    {
+        <MudAlert Severity="Severity.Error">Failed to load VPM repository manifest.</MudAlert>
+        return;
+    }
+}
+<PageTitle>
+    @vpmRepositoryManifest.Name
+</PageTitle>
+
+<MudText Typo="Typo.h3">
+    @vpmRepositoryManifest.Name
+</MudText>
+
+<AddToVccButton />
+
+<MudGrid>
+    @foreach(var package in packages ?? throw new UnreachableException())
+    {
+        string? owner = null;
+        string? repo = null;
+        if(package.SelectedPackageManifest.Url is not null)
+        {
+            var match = GitHubHelpers.GitHubOwnerAndRepoRegex().Match(package.SelectedPackageManifest.Url.AbsoluteUri);
+            if (match.Success)
+            {
+                owner = match.Groups["owner"].Value;
+                repo = match.Groups["repo"].Value;
+            }
+        }
+        <MudItem xs="12" md="6" xl="4">
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderAvatar>
+                        @if (owner is not null)
+                        {
+                            <MudLink Href="@($"https://github.com/{owner}")">
+                                <MudAvatar>
+                                    <MudImage Src="@($"https://github.com/{owner}.png")" />
+                                </MudAvatar>
+                            </MudLink>
+                        }
+                    </CardHeaderAvatar>
+                    <CardHeaderContent>
+                        <MudStack>
+                            <MudStack Row>
+                                <MudText Typo="Typo.h6">
+                                    @package.SelectedPackageManifest.DisplayName
+                                </MudText>
+                                <MudSelect @bind-Value="package.SelectedPackageManifest">
+                                    @foreach (var packageManifest in package.PackageManifests)
+                                    {
+                                        <MudSelectItem Value="packageManifest">
+                                            @packageManifest.Version
+                                        </MudSelectItem>
+                                    }
+                                </MudSelect>
+                            </MudStack>
+                            <MudText Typo="Typo.subtitle2" Class="gray-text">
+                                @package.Name
+                            </MudText>
+                        </MudStack>
+                    </CardHeaderContent>
+
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Typo="Typo.body1">
+                        @package.SelectedPackageManifest.Description
+                    </MudText>
+                </MudCardContent>
+                <MudCardActions>
+                    @if(owner is not null && repo is not null)
+                    {
+                        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Href="@($"https://github.com/{owner}/{repo}")" />
+                    }
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    }
+</MudGrid>
+
+@code{
+    Task<VpmRepositoryManifest?> vpmRepositoryManifestTask = null!;
+    PackageModel[]? packages;
+    protected override async Task OnInitializedAsync()
+    {
+        vpmRepositoryManifestTask = HttpClient.GetFromJsonAsync<VpmRepositoryManifest>("index.json", Json.JsonSerializerOptions);
+        var vpmRepositoryManifest = await vpmRepositoryManifestTask;
+        if(vpmRepositoryManifest is not null)
+        {
+            packages = vpmRepositoryManifest.Packages.Select(keyValue => PackageModel.FromVersions(keyValue.Key, keyValue.Value)).ToArray();
+        }
+    }
+
+    sealed class PackageModel
+    {
+        public required string Name { get; init; }
+        public required VpmPackageManifest[] PackageManifests { get; init; }
+        public required VpmPackageManifest SelectedPackageManifest { get; set; }
+
+        public static PackageModel FromVersions(string name, VpmPackageVersions vpmPackageVersions)
+        {
+            var packageVersions = vpmPackageVersions.Versions.Values.OrderByDescending(packageManifest => packageManifest.Version).ToArray();
+
+            var selectedVersion = packageVersions.First(packageManifest => !packageManifest.Version.IsPreRelease);
+
+            return new PackageModel
+                {
+                    Name = name,
+                    PackageManifests = packageVersions,
+                    SelectedPackageManifest = selectedVersion,
+                };
+        }
+    }
+}

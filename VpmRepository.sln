@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35931.197
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VpmRepository.Build", "VpmRepository.Build\VpmRepository.Build.csproj", "{CBF09743-B5BE-4D64-A9B3-26696B79F774}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VpmRepository.Shared", "VpmRepository.Shared\VpmRepository.Shared.csproj", "{B57FCB1D-7006-4DFE-8013-C71926FBB225}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VpmRepository.Web", "VpmRepository.Web\VpmRepository.Web.csproj", "{B85159AD-5742-4E1E-BE99-7A82A15F9010}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CBF09743-B5BE-4D64-A9B3-26696B79F774}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBF09743-B5BE-4D64-A9B3-26696B79F774}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B57FCB1D-7006-4DFE-8013-C71926FBB225}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B57FCB1D-7006-4DFE-8013-C71926FBB225}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B57FCB1D-7006-4DFE-8013-C71926FBB225}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B57FCB1D-7006-4DFE-8013-C71926FBB225}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B85159AD-5742-4E1E-BE99-7A82A15F9010}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B85159AD-5742-4E1E-BE99-7A82A15F9010}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B85159AD-5742-4E1E-BE99-7A82A15F9010}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B85159AD-5742-4E1E-BE99-7A82A15F9010}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C7DD6543-9387-4703-B064-303A67831133}
+	EndGlobalSection
+EndGlobal
