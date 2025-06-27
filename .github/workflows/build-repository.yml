@@ -60,7 +60,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ${{env.publishDirectory}}
+          path: ${{env.publishDirectory}}/wwwroot
           
       - name: Deploy to GitHub Pages
         id: deployment
