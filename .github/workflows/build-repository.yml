@@ -49,7 +49,8 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj') }}
           
       - name: Publish Pages
-        run: build.cmd Publish --output ${{env.publishDirectory}}
+        shell: bash
+        run: ./build.sh --target Publish --output ${{env.publishDirectory}}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
  
