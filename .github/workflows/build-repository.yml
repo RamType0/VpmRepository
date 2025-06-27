@@ -40,7 +40,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj') }}
           
       - name: Publish Pages
-        run: build.sh Publish --output $GITHUB_WORKSPACE/${{env.publishDirectory}}
+        run: $GITHUB_WORKSPACE/build.sh Publish --output $GITHUB_WORKSPACE/${{env.publishDirectory}}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
  
