@@ -168,7 +168,7 @@
     PackageModel[]? packages;
     protected override async Task OnInitializedAsync()
     {
-        vpmRepositoryManifestTask = HttpClient.GetFromJsonAsync<VpmRepositoryManifest>("index.json", Json.JsonSerializerOptions);
+        vpmRepositoryManifestTask = HttpClient.GetFromJsonAsync<VpmRepositoryManifest>(GlobalSettings.PublishedRepositoryManifestFileName, Json.JsonSerializerOptions);
         var vpmRepositoryManifest = await vpmRepositoryManifestTask;
         if(vpmRepositoryManifest is not null)
         {

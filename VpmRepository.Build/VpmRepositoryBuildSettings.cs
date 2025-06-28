@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Version = SemanticVersioning.Version;
 namespace VpmRepository.Build;
-public record VpmRepositorySettings
+public record VpmRepositoryBuildSettings
 {
     public required string Name { get; init; }
     public required string Id { get; init; }

@@ -2,7 +2,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SemanticVersion = SemanticVersioning.Version;
-using SemanticVersionRange = SemanticVersioning.Range;
 namespace VpmRepository;
 
 public sealed class SemanticVersionJsonConverter : JsonConverter<SemanticVersion>

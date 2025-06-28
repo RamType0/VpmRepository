@@ -9,7 +9,6 @@ using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Utilities.Collections;
 using static Nuke.Common.EnvironmentInfo;
-//using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using Nuke.Common.CI.GitHubActions;
@@ -23,9 +22,7 @@ using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Buffers;
 using System.Text.Json;
-using System.IO;
 using Nuke.Common.Utilities;
-using System.Text.Json.Serialization;
 using System.Net.Http.Json;
 [GitHubActions(
         "build-repository",
@@ -83,14 +80,12 @@ class Build : NukeBuild
         WriteIndented = IsLocalBuild,
     };
 
-    const string RepositoryManifestFileName = "index.json";
-
-    static VpmRepositorySettings Settings { get; } = new()
+    static VpmRepositoryBuildSettings Settings { get; } = new()
     {
         Id = "com.ramtype0.vpm-repository",
-        Name = "Ram.Type-0 VPM Repository",
+        Name = GlobalSettings.RepositoryName,
         Author = "Ram.Type-0",
-        Url = new(IsLocalBuild ? "https://ramtype0.github.io/VpmRepository/index.json" : $"https://{GitHubActions.RepositoryOwner}.github.io/{GitHubActions.Repository.Split('/')[1]}/{RepositoryManifestFileName}"),
+        Url = new(IsLocalBuild ? $"https://ramtype0.github.io/VpmRepository/{GlobalSettings.PublishedRepositoryManifestFileName}" : $"https://{GitHubActions.RepositoryOwner}.github.io/{GitHubActions.Repository.Split('/')[1]}/{GlobalSettings.PublishedRepositoryManifestFileName}"),
         GitHubRepositories =
                 {
                     ["RamType0"] = ["Meshia.MeshSimplification"],
@@ -102,7 +97,7 @@ class Build : NukeBuild
     Target RefreshVpmRepositoryManifest => _ => _
         .Executes(async () =>
         {
-            AbsolutePath vpmRepositoryManifestJsonPath = (WorkingDirectory / "VpmRepository.Web" / "wwwroot" / RepositoryManifestFileName);
+            AbsolutePath vpmRepositoryManifestJsonPath = (WorkingDirectory / "VpmRepository.Web" / "wwwroot" / GlobalSettings.PublishedRepositoryManifestFileName);
             
             VpmRepositoryManifest? existingVpmRepositoryManifest = null;
             if (vpmRepositoryManifestJsonPath.FileExists())

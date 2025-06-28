@@ -1,16 +1,18 @@
 ﻿@using System.Net
 @inject NavigationManager NavigationManager
 
-<MudButton Href="@url" Variant="Variant.Filled" Color="Color.Primary">
+<MudButton Href="@href" Variant="Variant.Filled" Color="Color.Primary">
     Add to VCC
 </MudButton>
 
 @code {
-    string url = "";
+    [Parameter]
+    public string VpmRepositoryManifestUrl { get; set; } = GlobalSettings.PublishedRepositoryManifestFileName;
+    string href = "";
 
     protected override void OnInitialized()
     {
-        var vpmRepositoryManifestUrl = NavigationManager.ToAbsoluteUri("index.json").AbsoluteUri;
-        url = $"vcc://vpm/addRepo?url={WebUtility.UrlEncode(vpmRepositoryManifestUrl)}";
+        var vpmRepositoryManifestUrl = NavigationManager.ToAbsoluteUri(VpmRepositoryManifestUrl).AbsoluteUri;
+        href = $"vcc://vpm/addRepo?url={WebUtility.UrlEncode(vpmRepositoryManifestUrl)}";
     }
 }
