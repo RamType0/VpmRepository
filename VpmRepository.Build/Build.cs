@@ -94,10 +94,12 @@ class Build : NukeBuild
         GitHubRepositories =
                 {
                     ["RamType0"] = ["Meshia.MeshSimplification"],
+                    ["bdunderscore"] =["ndmf", "modular-avatar"],
+                    ["anatawa12"] = ["CustomLocalization4EditorExtension"],
                 },
     };
 
-    Target RefreshVpmRepositoryJson => _ => _
+    Target RefreshVpmRepositoryManifest => _ => _
         .Executes(async () =>
         {
             AbsolutePath vpmRepositoryManifestJsonPath = (WorkingDirectory / "VpmRepository.Web" / "wwwroot" / RepositoryManifestFileName);
@@ -133,7 +135,7 @@ class Build : NukeBuild
                 .Where(packageManifest => packageManifest.Url is not null)
                 .ToDictionary(packageManifest => packageManifest.Url!) ?? [];
 
-            List<VpmPackageManifest> vpmPackageManifests = [];
+            HashSet<VpmPackageManifest> vpmPackageManifests = new(UpmPackageManifestNameVersionEqualityComparer.Instance);
 
             foreach (var (owner, repoNames) in Settings.GitHubRepositories)
             {
@@ -151,10 +153,24 @@ class Build : NukeBuild
                 var packageManifest = await GetVpmPackageManifestAsync(packageZipUrl, existingPackageManifests);
                 if (packageManifest is null)
                 {
-                    Serilog.Log.Warning($"Package manifest for {packageZipUrl} is null, skipping.");
-                    continue;
+                    throw new ArgumentException($"Package manifest for {packageZipUrl} is null. The package may not contain a valid package.json file or the URL is incorrect.");
                 }
                 vpmPackageManifests.Add(packageManifest);
+            }
+
+            foreach (var includedManifestUrl in Settings.IncludedVpmRepositoryManifestUrls)
+            {
+                var includedManifest = await HttpClient.GetFromJsonAsync<VpmRepositoryManifest>(includedManifestUrl, JsonSerializerOptions);
+                if (includedManifest is null)
+                {
+                    throw new ArgumentException($"Included VPM repository manifest at {includedManifestUrl} is null.");
+                }
+                
+                foreach (var packageManifest in includedManifest.Packages.Values.SelectMany(packageVersions => packageVersions.Versions.Values))
+                {
+                    vpmPackageManifests.Add(packageManifest);
+                }
+
             }
 
             VpmRepositoryManifest vpmRepositoryManifest = new()
@@ -176,7 +192,7 @@ class Build : NukeBuild
             vpmRepositoryManifestJsonPath.WriteAllBytes(JsonSerializer.SerializeToUtf8Bytes(vpmRepositoryManifest, JsonSerializerOptions));
         });
     Target Publish => _ => _
-        .DependsOn(RefreshVpmRepositoryJson)
+        .DependsOn(RefreshVpmRepositoryManifest)
         .Executes(() =>
         {
             DotNetPublish(config => config

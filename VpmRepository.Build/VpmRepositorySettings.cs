@@ -17,5 +17,7 @@ public record VpmRepositorySettings
     public Uri[] PackageZipUrls { get; init; } = [];
 
     public Dictionary<string, string[]> GitHubRepositories { get; init; } = [];
+
+    public Uri[] IncludedVpmRepositoryManifestUrls { get; init; } = [];
 }
 

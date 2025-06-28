@@ -1,11 +1,15 @@
 ﻿@page "/"
 @using System.Diagnostics
+@using System.Text.Json.Nodes
+@using System.Text.Json
 @inject HttpClient HttpClient
 
 
 @if (!vpmRepositoryManifestTask.IsCompleted)
 {
-    <MudSkeleton Height="800px" Width="100%" SkeletonType="SkeletonType.Rectangle" />
+    <MudAlert Severity="Severity.Info">
+        Loading...
+    </MudAlert>
     return;
 }
 
@@ -31,11 +35,12 @@
 <MudGrid>
     @foreach(var package in packages ?? throw new UnreachableException())
     {
+        var selectedPackageManifest = package.SelectedPackageManifest;
         string? owner = null;
         string? repo = null;
-        if(package.SelectedPackageManifest.Url is not null)
+        if(selectedPackageManifest.Url is not null)
         {
-            var match = GitHubHelpers.GitHubOwnerAndRepoRegex().Match(package.SelectedPackageManifest.Url.AbsoluteUri);
+            var match = GitHubHelpers.GitHubOwnerAndRepoRegex().Match(selectedPackageManifest.Url.AbsoluteUri);
             if (match.Success)
             {
                 owner = match.Groups["owner"].Value;
@@ -59,7 +64,7 @@
                         <MudStack>
                             <MudStack Row>
                                 <MudText Typo="Typo.h6">
-                                    @package.SelectedPackageManifest.DisplayName
+                                    @selectedPackageManifest.DisplayName
                                 </MudText>
                                 <MudSelect @bind-Value="package.SelectedPackageManifest">
                                     @foreach (var packageManifest in package.PackageManifests)
@@ -69,6 +74,38 @@
                                         </MudSelectItem>
                                     }
                                 </MudSelect>
+                                @if(selectedPackageManifest.VrcGetExtension?.Yanked is JsonValue yankedProperty)
+                                {
+                                    bool yanked;
+                                    string? yankedReason = null;
+                                    if(!yankedProperty.TryGetValue<bool>(out yanked))
+                                    {
+                                        yanked = yankedProperty.TryGetValue<string>(out yankedReason) && yankedReason.Length > 0;
+
+                                    }
+                                    <MudTooltip>
+                                        <ChildContent>
+                                            <MudChip T="string" Variant="Variant.Outlined" Color="Color.Warning">
+                                                Yanked
+                                            </MudChip>
+                                        </ChildContent>
+                                        <TooltipContent>
+                                            <MudText Typo="Typo.body2">
+                                                @if (yankedReason is not null)
+                                                {
+                                                    @yankedReason
+                                                }
+                                                else
+                                                {
+                                                    <text>
+                                                        This package version has been yanked and is no longer recommended for use.
+                                                    </text>
+                                                }
+                                            </MudText>
+                                        </TooltipContent>
+                                    </MudTooltip>
+
+                                }
                             </MudStack>
                             <MudText Typo="Typo.subtitle2" Class="gray-text">
                                 @package.Name
@@ -78,14 +115,47 @@
 
                 </MudCardHeader>
                 <MudCardContent>
+
+                    @{
+                        IEnumerable<string> keywords = selectedPackageManifest.Keywords ?? [];
+                        keywords = keywords.Concat(selectedPackageManifest.VrcGetExtension?.Aliases ?? []);
+                        <MudStack Row>
+                            @foreach (var keyword in keywords)
+                            {
+
+                                <MudChip T="string" Variant="Variant.Text" Color="Color.Secondary">
+                                    @keyword
+                                </MudChip>
+                            }
+                        </MudStack>
+                    }
                     <MudText Typo="Typo.body1">
-                        @package.SelectedPackageManifest.Description
+                        @selectedPackageManifest.Description
                     </MudText>
+                    
                 </MudCardContent>
                 <MudCardActions>
                     @if(owner is not null && repo is not null)
                     {
                         <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Href="@($"https://github.com/{owner}/{repo}")" />
+                    }
+                    @if (selectedPackageManifest.DocumentationUrl is not null)
+                    {
+                        <MudTooltip Text="Documentation">
+                            <MudIconButton Icon="@Icons.Material.Filled.Description" Href="@selectedPackageManifest.DocumentationUrl.AbsoluteUri" />
+                        </MudTooltip>
+                    }
+                    @if (selectedPackageManifest.ChangelogUrl is not null)
+                    {
+                        <MudTooltip Text="Changelog">
+                            <MudIconButton Icon="@Icons.Material.Filled.History" Href="@selectedPackageManifest.ChangelogUrl.AbsoluteUri" />
+                        </MudTooltip>
+                    }
+                    @if (selectedPackageManifest.LicensesUrl is not null)
+                    {
+                        <MudTooltip Text="License">
+                            <MudIconButton Icon="@Icons.Material.Filled.Balance" Href="@selectedPackageManifest.LicensesUrl.AbsoluteUri" />
+                        </MudTooltip>
                     }
                 </MudCardActions>
             </MudCard>

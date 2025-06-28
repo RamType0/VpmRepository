@@ -39,9 +39,12 @@ public record UpmPackageManifest
     [JsonPropertyName("changelogUrl")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public Uri? ChangelogUrl { get; set; }
+    /// <remarks>
+    /// Some packages incorrectly use version ranges in the <c>dependencies</c> field, which is not supported by Unity Package Manager. But we support it here for compatibility.
+    /// </remarks>
     [JsonPropertyName("dependencies")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public Dictionary<string, SemanticVersion> Dependencies { get; set; } = new();
+    public Dictionary<string, SemanticVersionRange> Dependencies { get; set; } = new();
     [JsonPropertyName("documentationUrl")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public Uri? DocumentationUrl { get; set; }
@@ -71,69 +74,5 @@ public record UpmPackageManifest
     public string? UnityRelease { get; set; }
 
     [JsonExtensionData]
-
     public Dictionary<string, JsonElement>? AdditionalProperties { get; set; }
-}
-
-public partial record VpmPackageManifest : UpmPackageManifest
-{
-
-    [JsonPropertyName("vpmDependencies")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public Dictionary<string, SemanticVersionRange>? VpmDependencies { get; set; }
-    [JsonPropertyName("url")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public Uri? Url { get; set; }
-
-    [JsonPropertyName("zipSHA256")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? ZipSha256 { get; set; }
-}
-
-public record PackageSample
-{
-    [JsonPropertyName("displayName")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? DisplayName { get; set; }
-    [JsonPropertyName("description")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? Description { get; set; }
-    [JsonPropertyName("path")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? Path { get; set; }
-}
-
-public record VpmRepositoryManifest
-{
-    [JsonPropertyName("name")]
-    public required string Name { get; set; }
-    [JsonPropertyName("id")]
-    public required string Id { get; set; }
-    [JsonPropertyName("author")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? Author { get; set; }
-    [JsonPropertyName("url")]
-    public required Uri Url { get; set; }
-
-    [JsonPropertyName("packages")]
-    public required Dictionary<string, VpmPackageVersions> Packages { get; set; }
-}
-
-public record VpmPackageVersions
-{
-    [JsonPropertyName("versions")]
-    public required Dictionary<SemanticVersion, VpmPackageManifest> Versions { get; set; } = new();
-}
-
-public static class Json
-{
-    public static JsonSerializerOptions JsonSerializerOptions { get; } = new()
-    {
-        Converters =
-        {
-            new SemanticVersionJsonConverter(),
-            new SemanticVersionRangeJsonConverter(),
-        },
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-    };
 }
