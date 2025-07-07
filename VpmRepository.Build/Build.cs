@@ -202,12 +202,15 @@ class Build : NukeBuild
     {
         var repository = await GitHubClient.Repository.Get(owner, name) ?? throw new ArgumentException($"Repository {owner}/{name} not found.");
 
+        Serilog.Log.Information($"Fetching releases for {owner}/{name}...");
+
         var releases = await GitHubClient.Repository.Release.GetAll(owner, name);
 
         foreach (var release in releases)
         {
             if(release.Assets.Any(asset => asset.Name == "package.json") && release.Assets.FirstOrDefault(asset => asset.Name.EndsWith(".zip")) is { } packageZipAsset)
             {
+                Serilog.Log.Information($"Found release {release.Name} ({release.TagName}) for {owner}/{name} with package.json and zip asset.");
                 // Octokit does not exposes asset digest which contains SHA256 hash of the package zip, so we need to download it and compute hash manually.
                 // To compute SHA256 hash of the package zip, we need to download it.
                 var packageZipDownloadUrl = packageZipAsset.BrowserDownloadUrl;
@@ -226,6 +229,7 @@ class Build : NukeBuild
     {
         if(existingPackageManifests.TryGetValue(packageZipUrl, out var existingPackageManifest))
         {
+            Serilog.Log.Information($"Using existing package manifest for {packageZipUrl}");
             return existingPackageManifest;
         }
         var packageZipDownloadResponse = await HttpClient.GetAsync(packageZipUrl, HttpCompletionOption.ResponseContentRead);
@@ -237,12 +241,14 @@ class Build : NukeBuild
         var packageJsonEntry = packageZip.GetEntry("package.json");
         if (packageJsonEntry is null)
         {
+            Serilog.Log.Warning($"No package.json found in {packageZipUrl}. Skipping.");
             return null;
         }
         var packageManifest = await JsonSerializer.DeserializeAsync<VpmPackageManifest>(packageJsonEntry.Open(), JsonSerializerOptions);
 
         if (packageManifest is null)
         {
+            Serilog.Log.Warning($"Failed to deserialize package.json from {packageZipUrl}. The file may be corrupted or in an unsupported format.");
             return null;
         }
 
